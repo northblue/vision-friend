@@ -1,0 +1,42 @@
+{
+    "sourceFile": "app/api/images/route.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 6,
+            "patches": [
+                {
+                    "date": 1758543617070,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1758544004757,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n import { NextResponse } from \"next/server\";\n-import cloudinary from \"@/lib/cloudinary\";\n+import cloudinary from \"../../lib/cloudinary\";\n \n export async function GET() {\n   try {\n     const result = await cloudinary.api.resources({\n"
+                },
+                {
+                    "date": 1758544127518,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n import { NextResponse } from \"next/server\";\n-import cloudinary from \"../../lib/cloudinary\";\n+import cloudinary from \"../../../lib/cloudinary\";nary\";\n \n export async function GET() {\n   try {\n     const result = await cloudinary.api.resources({\n"
+                },
+                {
+                    "date": 1758544148476,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n import { NextResponse } from \"next/server\";\n-import cloudinary from \"../../../lib/cloudinary\";nary\";\n+import cloudinary from \"../../../lib/cloudinary\";\n \n export async function GET() {\n   try {\n     const result = await cloudinary.api.resources({\n"
+                },
+                {
+                    "date": 1758545308719,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,15 +2,33 @@\n import cloudinary from \"../../../lib/cloudinary\";\n \n export async function GET() {\n   try {\n-    const result = await cloudinary.api.resources({\n-      type: \"upload\",\n-      prefix: process.env.CLOUDINARY_FOLDER, // only show \"vision-friend\" folder\n-      max_results: 20,\n-    });\n+    const prefix = process.env.CLOUDINARY_FOLDER || \"\";\n+    const allResources: any[] = [];\n \n-    return NextResponse.json(result.resources);\n+    let nextCursor: string | undefined = undefined;\n+\n+    do {\n+      const res = await cloudinary.api.resources({\n+        type: \"upload\",\n+        prefix,\n+        max_results: 500,      // 单页最多 500\n+        next_cursor: nextCursor,\n+        resource_type: \"image\" // 只要图片\n+      });\n+\n+      if (res.resources?.length) {\n+        allResources.push(...res.resources);\n+      }\n+\n+      nextCursor = res.next_cursor;\n+    } while (nextCursor);\n+\n+    // 按创建时间倒序，最新图片在前\n+    allResources.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));\n+\n+    return NextResponse.json(allResources);\n   } catch (error: any) {\n     return NextResponse.json({ error: error.message }, { status: 500 });\n   }\n }\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1758545473341,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,28 +4,27 @@\n export async function GET() {\n   try {\n     const prefix = process.env.CLOUDINARY_FOLDER || \"\";\n     const allResources: any[] = [];\n-\n     let nextCursor: string | undefined = undefined;\n \n     do {\n       const res = await cloudinary.api.resources({\n         type: \"upload\",\n         prefix,\n-        max_results: 500,      // 单页最多 500\n+        max_results: 100,      // 每页最多 100 张\n         next_cursor: nextCursor,\n-        resource_type: \"image\" // 只要图片\n+        resource_type: \"image\",\n       });\n \n       if (res.resources?.length) {\n-        allResources.push(...res.resources);\n+        allResources.push(...res.resources); // 注意这里是 push，不是覆盖\n       }\n \n-      nextCursor = res.next_cursor;\n+      nextCursor = res.next_cursor; // 如果有下一页，继续循环\n     } while (nextCursor);\n \n-    // 按创建时间倒序，最新图片在前\n+    // 按创建时间倒序排列\n     allResources.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));\n \n     return NextResponse.json(allResources);\n   } catch (error: any) {\n"
+                },
+                {
+                    "date": 1758550777670,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,32 +2,18 @@\n import cloudinary from \"../../../lib/cloudinary\";\n \n export async function GET() {\n   try {\n-    const prefix = process.env.CLOUDINARY_FOLDER || \"\";\n-    const allResources: any[] = [];\n-    let nextCursor: string | undefined = undefined;\n+    const folder = process.env.CLOUDINARY_FOLDER || \"vision-friend\";\n \n-    do {\n-      const res = await cloudinary.api.resources({\n-        type: \"upload\",\n-        prefix,\n-        max_results: 100,      // 每页最多 100 张\n-        next_cursor: nextCursor,\n-        resource_type: \"image\",\n-      });\n+    const result = await cloudinary.search\n+      .expression(`folder:${folder}/*`) // 搜索该 folder 下所有图片\n+      .sort_by(\"public_id\", \"desc\")    // 按 public_id 倒序（最新在前）\n+      .max_results(50)                 // 最多获取 50 张\n+      .execute();\n \n-      if (res.resources?.length) {\n-        allResources.push(...res.resources); // 注意这里是 push，不是覆盖\n-      }\n-\n-      nextCursor = res.next_cursor; // 如果有下一页，继续循环\n-    } while (nextCursor);\n-\n-    // 按创建时间倒序排列\n-    allResources.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));\n-\n-    return NextResponse.json(allResources);\n+    // result.resources 是图片数组\n+    return NextResponse.json(result.resources);\n   } catch (error: any) {\n     return NextResponse.json({ error: error.message }, { status: 500 });\n   }\n }\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1758543617070,
+            "name": "Commit-0",
+            "content": "import { NextResponse } from \"next/server\";\nimport cloudinary from \"@/lib/cloudinary\";\n\nexport async function GET() {\n  try {\n    const result = await cloudinary.api.resources({\n      type: \"upload\",\n      prefix: process.env.CLOUDINARY_FOLDER, // only show \"vision-friend\" folder\n      max_results: 20,\n    });\n\n    return NextResponse.json(result.resources);\n  } catch (error: any) {\n    return NextResponse.json({ error: error.message }, { status: 500 });\n  }\n}"
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "sourceFile": "README.md",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1758029419393,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1758029524573,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -22,5 +22,60 @@\n \n ### 1. Clone the project\n ```bash\n git clone https://github.com/yourname/vision-friend.git\n-cd vision-friend\n\\ No newline at end of file\n+cd vision-friend\n+```\n+\n+### 2. Install dependencies\n+```bash\n+npm install\n+```\n+\n+### 3. Initialize Prisma\n+```bash\n+npx prisma init --datasource-provider sqlite\n+```\n+\n+### 4. Run initial migration\n+```bash\n+npx prisma migrate dev --name init\n+```\n+\n+### 5. Start the development server\n+```bash\n+npm run dev\n+```\n+\n+Then open your browser:  \n+- Local: [http://localhost:3000](http://localhost:3000)  \n+- Network: `http://<your-local-ip>:3000` (useful for testing on mobile devices)\n+\n+---\n+\n+## 📂 Project Structure\n+```\n+vision-friend/\n+├── prisma/          # Prisma schema definition\n+├── public/          # Static assets\n+├── src/             # Main source code\n+│   ├── app/         # Next.js App Router\n+│   ├── components/  # Shared React components\n+│   └── lib/         # Utility functions\n+├── .env             # Environment variables\n+└── package.json\n+```\n+\n+---\n+\n+## 🔮 Roadmap\n+\n+- [ ] Phase 1: Local gallery with upload + display  \n+- [ ] Phase 2: Image storage via **Cloudinary**  \n+- [ ] Phase 3: Basic user management (accounts)  \n+- [ ] Phase 4: NestJS integration (optional)  \n+- [ ] Phase 5: AI-powered features (auto-tagging, recognition)  \n+\n+---\n+\n+## 📜 License\n+MIT\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1758029419393,
+            "name": "Commit-0",
+            "content": "# Vision Friend 👀\n\n**Vision Friend** is a personal gallery project built with **Next.js 15**.  \nThe goal of this project is:  \n- To create a simple and responsive gallery for drawings and doodles  \n- To practice **React + Next.js + Prisma + SQLite** full-stack development  \n- To later extend with **Cloudinary storage, user accounts, and AI features**  \n\n---\n\n## 🚀 Tech Stack\n\n- [Next.js 15](https://nextjs.org/) - React full-stack framework\n- [Prisma](https://www.prisma.io/) - Modern ORM\n- [SQLite](https://sqlite.org/) - Lightweight database (for development)\n- [TypeScript](https://www.typescriptlang.org/) - Strong typing\n- [Tailwind CSS](https://tailwindcss.com/) - Styling (optional)\n\n---\n\n## 📦 Installation & Setup\n\n### 1. Clone the project\n```bash\ngit clone https://github.com/yourname/vision-friend.git\ncd vision-friend"
+        }
+    ]
+}
